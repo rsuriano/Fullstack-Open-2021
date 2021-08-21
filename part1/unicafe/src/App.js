@@ -10,6 +10,8 @@ const App = () => {
   const handlerNeutral = () => setNeutral(neutral + 1)
   const handlerBad = () => setBad(bad + 1)
 
+  const all = good + neutral + bad
+  
   return (
     <div>
       <p>Give feedback:</p> 
@@ -21,6 +23,9 @@ const App = () => {
       good {good} <br/>
       neutral {neutral} <br/>
       bad {bad} <br/>
+      all {all} <br/>
+      average {(good*1 + bad*-1)/3} <br/>
+      positive {all==0 ? 0 : good / (good + neutral + bad)}% 
     </div>
   )
 }

@@ -12,15 +12,30 @@ const App = () => {
   ]
 
   const [selected, setSelected] = useState(0)
+  const [votes, setVote] = useState(Array.apply(null, new Array(anecdotes.length)).map(Number.prototype.valueOf,0))
   
+  //'Next Anecdote' button handler: it generates a new different random number to render a different anecdote.
   const handleAnecdotes = () => {
-    const rand = Math.round(Math.random() * anecdotes.length)
+    let rand = Math.round(Math.random() * (anecdotes.length - 1))
+    while(rand===selected){
+      rand = Math.round(Math.random() * (anecdotes.length - 1))
+    }
+    console.log(rand)
     setSelected(rand)
+  }
+
+  //Vote handler: updates the votes state array.
+  const handleVotes = () => {
+    const newVotes = [...votes]
+    newVotes[selected] +=1
+    setVote(newVotes)
   }
 
   return(
     <div>
       {anecdotes[selected]} <br/>
+      has {votes[selected]} {votes[selected]===1 ? 'vote': 'votes'} <br/>
+      <Button onClick={handleVotes} text='vote' />
       <Button onClick={handleAnecdotes} text='next anecdote' />
     </div>
   )

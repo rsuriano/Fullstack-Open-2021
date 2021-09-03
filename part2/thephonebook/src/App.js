@@ -16,10 +16,17 @@ const App = () => {
   // Form Submit handler, adds the current newName to the list of persons
   const addPerson = (event) => {
     event.preventDefault()
-    const person = {
-      name: newName
+
+    console.log( persons.filter((p) => p.name===newName) )
+    //Detect duplicate name and alerts the user
+    if ( persons.filter((p) => p.name===newName).length > 0 ){
+      window.alert(`${newName} is already on the phonebook.`)
+    } else {
+      const person = {
+        name: newName
+      }  
+      setpersons(persons.concat(person))
     }
-    setpersons(persons.concat(person))
   }
 
   return (

@@ -13,7 +13,11 @@ const Countries = ({countryList, filter}) => {
   }
 
   if (filteredCountries.length < 10 && filteredCountries.length > 1){
-    return(<div>{filteredCountries.map(country => <ul key={country.name}> {country.name} </ul>)}</div>)
+    return(
+    <div>
+      {filteredCountries.map(country => <ul key={country.name}> {country.name} </ul>)}
+    </div>
+    )
   }
 
   if (filteredCountries.length === 1){
@@ -27,6 +31,9 @@ const Countries = ({countryList, filter}) => {
         flag={country.flag}
         ></Country>
     )
+  }
+  else{
+    return(null)
   }
 
 }

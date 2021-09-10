@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Phonebook = ({persons, filterValue}) => {
   return(
     <>{
       persons
-      .filter( ({name}) =>  name.toLowerCase().includes(filterValue) )
-      .map( (person) => <PhonebookEntry key={person.name} name={person.name} phone={person.phone} />)
+      .filter(({name}) =>  name.toLowerCase().includes(filterValue))
+      .map((person) => <PhonebookEntry key={person.name} name={person.name} phone={person.phone} />)
     }</>
     
   )
@@ -34,16 +35,23 @@ const Filter = ({filterHandler}) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', phone: '040-123456' },
-    { name: 'Ada Lovelace', phone: '39-44-5323523' },
-    { name: 'Dan Abramov', phone: '12-43-234345' },
-    { name: 'Mary Poppendieck', phone: '39-23-6423122' }
-  ])
+  const [persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newPhone, setNewPhone ] = useState('')
   const [ filterValue, setFilterValue] = useState('')
+
+  //Fetches phonebook data from json-server using axios and the Effect Hook
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log(response.data)
+        const pp = response.data
+        setPersons(pp)
+      })
+  }, [])
   
+
   // Reads input name and updates its corresponding state
   const handleName = (event) => {
     setNewName(event.target.value)

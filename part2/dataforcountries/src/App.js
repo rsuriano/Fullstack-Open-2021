@@ -15,7 +15,17 @@ const Countries = ({countryList, filter}) => {
   if (filteredCountries.length < 10 && filteredCountries.length > 1){
     return(
     <div>
-      {filteredCountries.map(country => <ul key={country.name}> {country.name} </ul>)}
+      {filteredCountries
+        .map(country => 
+        <CountryItem 
+          key={country.name} 
+          name={country.name} 
+          capital={country.capital} 
+          population={country.population}
+          languages={country.languages}
+          flag={country.flag} 
+          />
+        )}
     </div>
     )
   }
@@ -23,13 +33,13 @@ const Countries = ({countryList, filter}) => {
   if (filteredCountries.length === 1){
     const country = filteredCountries[0]
     return(
-      <Country 
+      <CountryDetail
         name={country.name} 
         capital={country.capital} 
         population={country.population}
         languages={country.languages}
         flag={country.flag}
-        ></Country>
+        />
     )
   }
   else{
@@ -38,7 +48,7 @@ const Countries = ({countryList, filter}) => {
 
 }
 
-const Country = ({name, capital, population, languages, flag}) => {
+const CountryDetail = ({name, capital, population, languages, flag}) => {
   return(
     <div>
         <h1>{name}</h1>
@@ -50,6 +60,30 @@ const Country = ({name, capital, population, languages, flag}) => {
       </div>
   )
 } 
+
+const CountryItem = ({name, capital, population, languages, flag}) => {
+  const [showInfo, setShowInfo] = useState(false)
+  const handleShowInfo = () => {
+    showInfo === true ? setShowInfo(false) : setShowInfo(true)
+  }
+
+  return(
+    <ul> 
+      {name} <button onClick={handleShowInfo}> {showInfo? "hide": "show"}</button>
+      {showInfo? <CountryDetail
+                  name={name} 
+                  capital={capital} 
+                  population={population}
+                  languages={languages}
+                  flag={flag}
+                  />
+                  :
+                  <></>
+      } 
+      
+    </ul>
+  )
+}
 
 const App = () => {
   const [countries, setCountries] = useState([])

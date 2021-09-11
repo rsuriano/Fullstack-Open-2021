@@ -17,14 +17,7 @@ const Countries = ({countryList, filter}) => {
     <div>
       {filteredCountries
         .map(country => 
-        <CountryItem 
-          key={country.name} 
-          name={country.name} 
-          capital={country.capital} 
-          population={country.population}
-          languages={country.languages}
-          flag={country.flag} 
-          />
+        <CountryItem key={country.name} countryData={country}/>
         )}
     </div>
     )
@@ -33,13 +26,7 @@ const Countries = ({countryList, filter}) => {
   if (filteredCountries.length === 1){
     const country = filteredCountries[0]
     return(
-      <CountryDetail
-        name={country.name} 
-        capital={country.capital} 
-        population={country.population}
-        languages={country.languages}
-        flag={country.flag}
-        />
+      <CountryDetail countryData={country}/>
     )
   }
   else{
@@ -48,20 +35,30 @@ const Countries = ({countryList, filter}) => {
 
 }
 
-const CountryDetail = ({name, capital, population, languages, flag}) => {
+const CountryDetail = ({countryData}) => {
+  const weather_api_key = process.env.REACT_APP_API_KEY
+  const [weather, setWeather] = useState({error: ''})
+
+  useEffect( ()=> {
+    axios
+      .get('http://api.weatherstack.com/current?access_key='+weather_api_key+'&query='+countryData.capital)
+      .then(response => setWeather(response.data))
+  }, [weather_api_key, countryData.capital])
+
   return(
     <div>
-        <h1>{name}</h1>
-        <p>Capital: {capital} </p>
-        <p>Population: {population}</p>
-        <div>Languages: {languages.map(lang => <ul key={lang.name}> {lang.name} </ul> )}</div>
+        <h1>{countryData.name}</h1>
+        <p>Capital: {countryData.capital} </p>
+        <p>Population: {countryData.population}</p>
+        <div>Languages: {countryData.languages.map(lang => <ul key={lang.name}> {lang.name} </ul> )}</div>
         <p>Flag: </p>
-        <img src={flag} alt={name + "'s Flag"}></img>
+        <img src={countryData.flag} alt={countryData.name + "'s Flag"} style={{width:200}}></img>
+        <p>Weather in {countryData.capital}: {Object.keys(weather).includes('error') ? '*' : weather.current.temperature}° Celsius</p>
       </div>
   )
 } 
 
-const CountryItem = ({name, capital, population, languages, flag}) => {
+const CountryItem = ({countryData}) => {
   const [showInfo, setShowInfo] = useState(false)
   const handleShowInfo = () => {
     showInfo === true ? setShowInfo(false) : setShowInfo(true)
@@ -69,18 +66,8 @@ const CountryItem = ({name, capital, population, languages, flag}) => {
 
   return(
     <ul> 
-      {name} <button onClick={handleShowInfo}> {showInfo? "hide": "show"}</button>
-      {showInfo? <CountryDetail
-                  name={name} 
-                  capital={capital} 
-                  population={population}
-                  languages={languages}
-                  flag={flag}
-                  />
-                  :
-                  <></>
-      } 
-      
+      {countryData.name} <button onClick={handleShowInfo}> {showInfo? "hide": "show"}</button>
+      {showInfo? <CountryDetail countryData={countryData}/> : <></>} 
     </ul>
   )
 }

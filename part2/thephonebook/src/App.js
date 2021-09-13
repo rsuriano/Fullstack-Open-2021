@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import pbService from './services/phonebookService'
 
 const Phonebook = ({persons, filterValue}) => {
   return(
@@ -42,13 +42,9 @@ const App = () => {
 
   //Fetches phonebook data from json-server using axios and the Effect Hook
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log(response.data)
-        const pp = response.data
-        setPersons(pp)
-      })
+    pbService
+      .getAll()
+      .then(personList => {setPersons(personList)})
   }, [])
   
 
@@ -81,10 +77,10 @@ const App = () => {
       }  
 
       //Saves data to server and clears input form state
-      axios
-        .post('http://localhost:3001/persons', newPerson)
-        .then(response => {
-          setPersons(persons.concat(newPerson))
+      pbService
+        .addEntry(newPerson)
+        .then(newEntry => {
+          setPersons(persons.concat(newEntry))
           setNewName('')
           setNewPhone('')
         })

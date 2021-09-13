@@ -67,8 +67,7 @@ const App = () => {
       pbService
         .removeEntry(data.id)
         .then(() => {
-          pbService.getAll()
-            .then(personList => setPersons(personList))
+          setPersons(persons.filter(p => p.name !== data.name))
         })
     }
   }
@@ -77,15 +76,37 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    //Detects duplicate name and alerts the user
-    if ( persons.filter((p) => p.name===newName).length > 0 ){
-      window.alert(`${newName} is already on the phonebook.`)
-    } else {
-      const newPerson = {
-        name: newName,
-        phone: newPhone
-      }  
+    //Checks for empty input values
+    if (newName === '') {
+      window.alert("Name field is empty.")
+      return(null)
+    }
+    if (newPhone === '') {
+      window.alert("Phone field is empty.")
+      return(null)
+    }
 
+    //Creates the new person data object
+    const newPerson = {
+      name: newName,
+      phone: newPhone
+    } 
+
+    //Detects duplicate name and asks the user if it wants to update the number
+    const existingPerson = persons.filter((p) => p.name===newName)
+    if ( existingPerson.length > 0 ){
+      const update = window.confirm(`${newName} is already on the phonebook, replace the old number with a new one?`)
+      if (update){
+        pbService
+          .updateEntry(existingPerson[0].id, newPerson)
+          .then(updatedEntry => {
+            setPersons(persons.map(p => p.id !== updatedEntry.id ? p : updatedEntry))
+            setNewName('')
+            setNewPhone('')
+          })
+      }
+    } else {
+      
       //Saves data to server using the phonebook service and clears input form state
       pbService
         .addEntry(newPerson)

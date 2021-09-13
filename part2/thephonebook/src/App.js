@@ -1,22 +1,7 @@
+import { getQueriesForElement } from '@testing-library/dom'
 import React, { useState, useEffect } from 'react'
+import Phonebook from './Phonebook'
 import pbService from './services/phonebookService'
-
-const Phonebook = ({persons, filterValue, removeHandler}) => {
-  return(
-    <>{
-      persons
-      .filter(({name}) =>  name.toLowerCase().includes(filterValue))
-      .map((person) => <PhonebookEntry key={person.name} data={person} removeHandler={removeHandler}/>)
-    }</>
-    
-  )
-}
-
-const PhonebookEntry = ({data, removeHandler}) => {
-  return(
-    <ul> {data.name} | {data.phone} <button onClick={() => removeHandler(data)}>remove</button></ul> 
-  )
-}
 
 const PersonForm = ({submitHandler, nameHandler, numberHandler, newName, newPhone}) => {
   return(
@@ -29,9 +14,27 @@ const PersonForm = ({submitHandler, nameHandler, numberHandler, newName, newPhon
 }
 
 const Filter = ({filterHandler}) => {
+  return(<>Filter by name: <input onChange={filterHandler}/></>)
+}
+
+const Alert = ({message}) => {
+  const alertStyle = {
+    color: 'green',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10
+  }
+
+  if (message === null) {
+    return null
+  }
+
   return(
-    <>Filter by name: <input onChange={filterHandler}/></>
-    )
+    <div style={alertStyle}>{message}</div>
+  )
 }
 
 const App = () => {
@@ -39,6 +42,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newPhone, setNewPhone ] = useState('')
   const [ filterValue, setFilterValue] = useState('')
+  const [ alertMessage, setAlertMessage ] = useState(null)
 
   //Fetches phonebook data from json-server using the phonebook service and the Effect Hook
   useEffect(() => {
@@ -62,12 +66,15 @@ const App = () => {
     setFilterValue(event.target.value.toLowerCase())
   }
 
+  // Removes person from server and from front end
   const handleRemoveButton = (data) => {
     if (window.confirm(`Delete ${data.name}?`)){
       pbService
         .removeEntry(data.id)
         .then(() => {
           setPersons(persons.filter(p => p.name !== data.name))
+          setAlertMessage(`${data.name} has been removed from the phonebook.`)
+          setTimeout(() => setAlertMessage(null), 5000)
         })
     }
   }
@@ -103,6 +110,8 @@ const App = () => {
             setPersons(persons.map(p => p.id !== updatedEntry.id ? p : updatedEntry))
             setNewName('')
             setNewPhone('')
+            setAlertMessage(`${newPerson.name}'s number has been updated.`)
+            setTimeout(() => setAlertMessage(null), 5000)
           })
       }
     } else {
@@ -121,7 +130,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      <Alert message={alertMessage} />
       <Filter filterHandler={handleFilter} />
 
       <h3>Add a new person:</h3>

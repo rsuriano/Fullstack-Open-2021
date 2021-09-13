@@ -75,11 +75,19 @@ const App = () => {
     if ( persons.filter((p) => p.name===newName).length > 0 ){
       window.alert(`${newName} is already on the phonebook.`)
     } else {
-      const person = {
+      const newPerson = {
         name: newName,
         phone: newPhone
       }  
-      setPersons(persons.concat(person))
+
+      //Saves data to server and clears input form state
+      axios
+        .post('http://localhost:3001/persons', newPerson)
+        .then(response => {
+          setPersons(persons.concat(newPerson))
+          setNewName('')
+          setNewPhone('')
+        })
     }
   }
 

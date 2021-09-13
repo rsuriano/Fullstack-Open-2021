@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import pbService from './services/phonebookService'
 
-const Phonebook = ({persons, filterValue}) => {
+const Phonebook = ({persons, filterValue, removeHandler}) => {
   return(
     <>{
       persons
       .filter(({name}) =>  name.toLowerCase().includes(filterValue))
-      .map((person) => <PhonebookEntry key={person.name} name={person.name} phone={person.phone} />)
+      .map((person) => <PhonebookEntry key={person.name} data={person} removeHandler={removeHandler}/>)
     }</>
     
   )
 }
 
-const PhonebookEntry = ({name, phone}) => {
+const PhonebookEntry = ({data, removeHandler}) => {
   return(
-    <ul> {name} | {phone} </ul> 
+    <ul> {data.name} | {data.phone} <button onClick={() => removeHandler(data)}>remove</button></ul> 
   )
 }
 
-const PersonForm = ({submitHandler, nameHandler, numberHandler}) => {
+const PersonForm = ({submitHandler, nameHandler, numberHandler, newName, newPhone}) => {
   return(
     <form onSubmit={submitHandler}>
-        <div> Name: <input onChange={nameHandler}/> </div>
-        <div> Number: <input onChange={numberHandler}/> </div>
+        <div> Name: <input value={newName} onChange={nameHandler}/> </div>
+        <div> Number: <input value={newPhone} onChange={numberHandler}/> </div>
         <div> <button type="submit">add</button>  </div>
       </form>
   )
@@ -35,19 +35,18 @@ const Filter = ({filterHandler}) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([])
+  const [ persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newPhone, setNewPhone ] = useState('')
   const [ filterValue, setFilterValue] = useState('')
 
-  //Fetches phonebook data from json-server using axios and the Effect Hook
+  //Fetches phonebook data from json-server using the phonebook service and the Effect Hook
   useEffect(() => {
     pbService
       .getAll()
       .then(personList => {setPersons(personList)})
   }, [])
   
-
   // Reads input name and updates its corresponding state
   const handleName = (event) => {
     setNewName(event.target.value)
@@ -63,6 +62,17 @@ const App = () => {
     setFilterValue(event.target.value.toLowerCase())
   }
 
+  const handleRemoveButton = (data) => {
+    if (window.confirm(`Delete ${data.name}?`)){
+      pbService
+        .removeEntry(data.id)
+        .then(() => {
+          pbService.getAll()
+            .then(personList => setPersons(personList))
+        })
+    }
+  }
+
   // Form Submit handler, adds the current newName and newPhone to the list of persons
   const addPerson = (event) => {
     event.preventDefault()
@@ -76,7 +86,7 @@ const App = () => {
         phone: newPhone
       }  
 
-      //Saves data to server and clears input form state
+      //Saves data to server using the phonebook service and clears input form state
       pbService
         .addEntry(newPerson)
         .then(newEntry => {
@@ -94,10 +104,10 @@ const App = () => {
       <Filter filterHandler={handleFilter} />
 
       <h3>Add a new person:</h3>
-      <PersonForm submitHandler={addPerson} nameHandler={handleName} numberHandler={handleNumber} />
+      <PersonForm submitHandler={addPerson} newName={newName} newPhone={newPhone} nameHandler={handleName} numberHandler={handleNumber} />
 
       <h3>Numbers</h3>
-      <Phonebook persons={persons} filterValue={filterValue} />
+      <Phonebook persons={persons} removeHandler={handleRemoveButton} filterValue={filterValue} />
       
     </div>
   )

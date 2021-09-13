@@ -12,12 +12,7 @@ const addEntry = (newEntry) => {
 }
 
 const removeEntry = (id) => {
-    const req = axios.delete(`${baseUrl}/${id}`)
-    return req.catch(error => {
-        console.log(error.response.status)
-        console.log(error.response.headers)
-        window.alert(`The entry couldn't be deleted. It may not be in the server anymore. Error code ${error.response.status}`)
-    })
+    return axios.delete(`${baseUrl}/${id}`)
 }
 
 const updateEntry = (id, newData) => {

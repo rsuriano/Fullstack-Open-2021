@@ -1,4 +1,3 @@
-import { getQueriesForElement } from '@testing-library/dom'
 import React, { useState, useEffect } from 'react'
 import Phonebook from './Phonebook'
 import pbService from './services/phonebookService'
@@ -17,9 +16,11 @@ const Filter = ({filterHandler}) => {
   return(<>Filter by name: <input onChange={filterHandler}/></>)
 }
 
-const Alert = ({message}) => {
-  const alertStyle = {
-    color: 'green',
+
+
+const Alert = ({message, type}) => {
+  
+  let alertStyle = {
     background: 'lightgrey',
     fontSize: 20,
     borderStyle: 'solid',
@@ -27,6 +28,9 @@ const Alert = ({message}) => {
     padding: 10,
     marginBottom: 10
   }
+
+  if (type === 'success') alertStyle = {...alertStyle, color: 'green'}
+  if (type === 'error') alertStyle = {...alertStyle, color: 'red'}
 
   if (message === null) {
     return null
@@ -42,7 +46,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newPhone, setNewPhone ] = useState('')
   const [ filterValue, setFilterValue] = useState('')
-  const [ alertMessage, setAlertMessage ] = useState(null)
+  const [ alert, setAlert ] = useState({message: null, type: null})
 
   //Fetches phonebook data from json-server using the phonebook service and the Effect Hook
   useEffect(() => {
@@ -73,8 +77,16 @@ const App = () => {
         .removeEntry(data.id)
         .then(() => {
           setPersons(persons.filter(p => p.name !== data.name))
-          setAlertMessage(`${data.name} has been removed from the phonebook.`)
-          setTimeout(() => setAlertMessage(null), 5000)
+          setAlert({ message: `${data.name} has been removed from the phonebook.`, type: 'success'})
+          setTimeout(() => setAlert({message: null, type: null}), 5000)
+        })
+        .catch(error => {
+          console.log(error.response.status)
+          console.log(error.response.headers)
+          setAlert({ 
+            message: `The entry couldn't be deleted. It may not be in the server anymore. Error code ${error.response.status}`, 
+            type: 'error' })
+          setTimeout(() => setAlert({message: null, type: null}), 5000)
         })
     }
   }
@@ -110,8 +122,13 @@ const App = () => {
             setPersons(persons.map(p => p.id !== updatedEntry.id ? p : updatedEntry))
             setNewName('')
             setNewPhone('')
-            setAlertMessage(`${newPerson.name}'s number has been updated.`)
-            setTimeout(() => setAlertMessage(null), 5000)
+            setAlert({ message: `${newPerson.name}'s number has been updated.`, type:'success' })
+            setTimeout(() => setAlert({message: null, type: null}), 5000)
+          })
+          .catch(error => {
+            setAlert({ message: `Information of ${newPerson.name} has already been removed from server.`, type: 'error' })
+            setPersons(persons.filter(p => p.name !== newPerson.name))
+            setTimeout(() => setAlert({message: null, type: null}), 5000)
           })
       }
     } else {
@@ -130,7 +147,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Alert message={alertMessage} />
+      <Alert message={alert.message} type={alert.type} />
       <Filter filterHandler={handleFilter} />
 
       <h3>Add a new person:</h3>

@@ -10,9 +10,12 @@ const Phonebook = ({persons, filterValue, removeHandler}) => {
   }
   
 const PhonebookEntry = ({data, removeHandler}) => {
-return(
-    <ul> {data.name} | {data.number} <button onClick={() => removeHandler(data)}>remove</button></ul> 
-)
+// return(
+//     <ul> {data.name} | {data.number} <button onClick={() => removeHandler(data)}>remove</button></ul> 
+// )
+  return(
+    <ul> {data.name} | {data.number} </ul>
+  )
 }
 
 export default Phonebook;

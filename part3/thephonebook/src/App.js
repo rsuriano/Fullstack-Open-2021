@@ -16,8 +16,6 @@ const Filter = ({filterHandler}) => {
   return(<>Filter by name: <input onChange={filterHandler}/></>)
 }
 
-
-
 const Alert = ({message, type}) => {
   
   let alertStyle = {
@@ -111,27 +109,27 @@ const App = () => {
       number: newNumber
     } 
 
-    // //Detects duplicate name and asks the user if it wants to update the number
-    // const existingPerson = persons.filter((p) => p.name===newName)
-    // if ( existingPerson.length > 0 ){
-    //   const update = window.confirm(`${newName} is already on the phonebook, replace the old number with a new one?`)
-    //   if (update){
-    //     pbService
-    //       .updateEntry(existingPerson[0].id, newPerson)
-    //       .then(updatedEntry => {
-    //         setPersons(persons.map(p => p.id !== updatedEntry.id ? p : updatedEntry))
-    //         setNewName('')
-    //         setNewNumber('')
-    //         setAlert({ message: `${newPerson.name}'s number has been updated.`, type:'success' })
-    //         setTimeout(() => setAlert({message: null, type: null}), 5000)
-    //       })
-    //       .catch(error => {
-    //         setAlert({ message: `Information of ${newPerson.name} has already been removed from server.`, type: 'error' })
-    //         setPersons(persons.filter(p => p.name !== newPerson.name))
-    //         setTimeout(() => setAlert({message: null, type: null}), 5000)
-    //       })
-    //   }
-    // } else {
+    //Detects duplicate name and asks the user if it wants to update the number
+    const existingPerson = persons.filter((p) => p.name===newName)
+    if ( existingPerson.length > 0 ){
+      const update = window.confirm(`${newName} is already on the phonebook, replace the old number with a new one?`)
+      if (update){
+        pbService
+          .updateEntry(existingPerson[0].id, newPerson)
+          .then(updatedEntry => {
+            setPersons(persons.map(p => p.id !== updatedEntry.id ? p : updatedEntry))
+            setNewName('')
+            setNewNumber('')
+            setAlert({ message: `${newPerson.name}'s number has been updated.`, type:'success' })
+            setTimeout(() => setAlert({message: null, type: null}), 5000)
+          })
+          .catch(error => {
+            setAlert({ message: `Information of ${newPerson.name} has already been removed from server.`, type: 'error' })
+            setPersons(persons.filter(p => p.name !== newPerson.name))
+            setTimeout(() => setAlert({message: null, type: null}), 5000)
+          })
+      }
+    } else {
       
       //Saves data to server using the phonebook service and clears input form state
       pbService
@@ -142,7 +140,7 @@ const App = () => {
           setNewNumber('')
         })
     }
-  //}
+  }
 
   return (
     <div>
